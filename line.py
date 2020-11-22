@@ -35,6 +35,9 @@ class Line() :
         self.b = _vx
         self.c = -1*(self.a*_x+self.b*_y)
 
+    def __lt__ (self,other):
+        return (self.x,self.y,self.ex,self.ey) < (other.x,other.y,other.ex,other.ey)
+
     def test(self):
         print("?")
     
@@ -43,6 +46,8 @@ class Line() :
 
     x = 0
     y = 0
+    ex = 0
+    ey = 0
     start = []
     end = []
     vx = 0
