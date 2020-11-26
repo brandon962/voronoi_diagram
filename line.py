@@ -34,6 +34,7 @@ class Line() :
         self.a = -1*_vy
         self.b = _vx
         self.c = -1*(self.a*_x+self.b*_y)
+        self.node_index = []
 
     def __lt__ (self,other):
         return (self.x,self.y,self.ex,self.ey) < (other.x,other.y,other.ex,other.ey)

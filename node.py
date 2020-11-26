@@ -87,6 +87,7 @@ class Node() :
         self.x = _x
         self.y = _y
         self.cx,self.cy = node(self.x,self.y)
+        self.line_index = []
 
     def __lt__ (self,other):
         return (self.x,self.y) < (other.x,other.y)
