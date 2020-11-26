@@ -38,7 +38,7 @@ def readNode(path):
                         temp = line.replace('\n','')
                         a,b = temp.split(' ')
                         temp_set.append([float(a),float(b)])
-def CreadNode_old(path):
+def CreateNode_old(path):
     n_set = []
     l_set = []
     with open(path,encoding='utf-8') as f:
@@ -56,7 +56,7 @@ def CreadNode_old(path):
                 l_set.append(ln.Line(int(x),int(y),int(x2)-int(x),int(y2)-int(y)))
     return n_set, l_set
 
-def CreadNode(path):
+def CreateNode(path):
     temp_set = []
     start = 1
     with open(path,encoding='utf-8') as f:

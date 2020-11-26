@@ -44,12 +44,14 @@ class Line() :
     def findY(self,_x):
         return -1*(self.a*_x+self.c)/self.b
 
+    # 線段的起終點
     x = 0
     y = 0
     ex = 0
     ey = 0
     start = []
     end = []
+    # 向量的方向
     vx = 0
     vy = 0
     # ax + by + c = 0

@@ -5,22 +5,25 @@ import Line as ln
 import time
 from tkinter import filedialog
 from tkinter.filedialog import asksaveasfile
+from scipy.spatial import ConvexHull, convex_hull_plot_2d
 
 # global variables
 now_set = 0
 node_set = []
 line_set = []
 outputfilename_offset = 0
+
+
 # functions
-def reafFile():
+def readFile():
     global node_set, now_set
     node_set = []
     now_set = 0
     filename = filedialog.askopenfilename()
     print(filename)
-    nd.CreadNode(filename)
+    nd.CreateNode(filename)
 
-def reafFile_old():
+def readFile_old():
     global node_set, now_set
     clearCanvas()
     node_set = []
@@ -29,7 +32,7 @@ def reafFile_old():
     filename = filedialog.askopenfilename()
     print(filename)
     f=open(filename,'r',encoding="utf-8")
-    node_set, line_set = nd.CreadNode_old(filename)
+    node_set, line_set = nd.CreateNode_old(filename)
     f.close()
 
     for i in range(len(node_set)) :
@@ -48,7 +51,8 @@ def checkrange(init) :
 
 def writeFile():
     global outputfilename_offset
-    node_set.sort()
+    temp_node_set = node_set.copy()
+    temp_node_set.sort()
 
     for i in range(len(line_set)) :
         if line_set[i].ex < line_set[i].x :
@@ -60,17 +64,18 @@ def writeFile():
             
 
 
-    line_set.sort()
+    temp_line_set = line_set.copy()
+    temp_line_set.sort()
     filename = 'output' + str(outputfilename_offset) + '.txt'
     outputfilename_offset += 1
     f = open(filename,'w')
     
-    for i in range(len(node_set)) :
-        writeString = 'P ' + str(int(node_set[i].x)) + ' ' + str(int(node_set[i].y)) + '\n'
+    for i in range(len(temp_node_set)) :
+        writeString = 'P ' + str(int(temp_node_set[i].x)) + ' ' + str(int(temp_node_set[i].y)) + '\n'
         f.write(writeString)
     
-    for i in range(len(line_set)):
-        writeString = 'E ' + str(checkrange(line_set[i].x)) + ' ' + str(checkrange(line_set[i].y)) + ' ' + str(checkrange(line_set[i].ex)) + ' ' + str(checkrange(line_set[i].ey)) + '\n'
+    for i in range(len(temp_line_set)):
+        writeString = 'E ' + str(checkrange(temp_line_set[i].x)) + ' ' + str(checkrange(temp_line_set[i].y)) + ' ' + str(checkrange(temp_line_set[i].ex)) + ' ' + str(checkrange(temp_line_set[i].ey)) + '\n'
         f.write(writeString)
 
     f.close()
@@ -102,34 +107,171 @@ def mouse_place(event):
     node_set[-1].node_id = canvas.create_oval(nd.circle(add_x,add_y),fill='red')
 
 def vorononi_merge(left,right, left_convex,right_convex):
-    return 0
+    
+    for i in left_convex:
+        canvas.delete(str(i[1]))
+    for i in right_convex:
+        canvas.delete(str(i[1]))
+    clr = build_convex_1(left[0],right[1]+1)
 
+    state = find_convex(left_convex,clr[0][0])
+
+    cutline = []
+
+    for i in range(len(clr)):
+        # print(find_convex(left_convex,clr[i][0]))
+        if find_convex(left_convex,clr[i][0]) != state:
+            cutline.append(i-1)
+            state = find_convex(left_convex,clr[i][0])
+
+    canvas.delete(str(clr[cutline[0]][1]))
+    canvas.delete(str(clr[cutline[1]][1]))
+
+    clr[cutline[0]][1] = canvas.create_line(nd.node(node_set[clr[cutline[0]][0]].x,node_set[clr[cutline[0]][0]].y),nd.node(node_set[clr[cutline[0]+1][0]].x,node_set[clr[cutline[0]+1][0]].y),fill='blue')
+    clr[cutline[1]][1] = canvas.create_line(nd.node(node_set[clr[cutline[1]][0]].x,node_set[clr[cutline[1]][0]].y),nd.node(node_set[clr[cutline[1]+1][0]].x,node_set[clr[cutline[1]+1][0]].y),fill='blue')
+    
+    if right[1] - left[0] == 2:
+        rnode = right[0]
+        if node_set[left[0]].y > node_set[left[1]].y:
+            lnode = left[0]
+        else:
+            lnode = left[1]
+
+    
+        mx,my,vx,vy = vo.midline([node_set[lnode].x,node_set[lnode].y],[node_set[right].x,node_set[right].y])
+        line_set.append(ln.Line(mx,my,vx,vy))
+        line_set[-1].node_index.append(rnode)
+        line_set[-1].node_index.append(lnode)
+        node_set[rnode].line_index.append(len(line_set)-1)
+        node_set[lnode].line_index.append(len(line_set)-1)
+    
+    return clr
+
+def find_convex(listN, node):
+    flag = False
+    for i in range(len(listN)):
+        if node == listN[i][0]:
+            flag = True
+            break
+    return flag
 
 def build_convex(start, end):
-    return 0
+    convex_list = []
+    if end-start == 2 :
+        tempID = canvas.create_line(nd.node(node_set[start].x,node_set[start].y),nd.node(node_set[end-1].x,node_set[end-1].y),fill='green')
+        convex_list.append([start,tempID])
+        convex_list.append([end-1,tempID])
+        convex_list.append([start,tempID])
+    
+    if end-start >2 :
+
+        temp_node = []
+
+        for i in range(start,end):
+            temp_node.append([node_set[i].x,node_set[i].y])
+
+        hull = ConvexHull(temp_node)
+        
+        hull_list = []
+        for i in hull.vertices:
+            hull_list.append(i+start)
+        hull_list.append(hull.vertices[0]+start)
+
+        for i in range(len(hull_list)-1):
+            tempID = canvas.create_line(nd.node(node_set[hull_list[i]].x,node_set[hull_list[i]].y),nd.node(node_set[hull_list[i+1]].x,node_set[hull_list[i+1]].y),fill='green')
+            convex_list.append([hull_list[i],tempID])
+        
+        tempID = canvas.create_line(nd.node(node_set[hull_list[0]].x,node_set[hull_list[0]].y),nd.node(node_set[hull_list[0+1]].x,node_set[hull_list[0+1]].y),fill='green')
+        convex_list.append([hull_list[0],tempID])
+            
+    return convex_list
+
+def build_convex_1(start, end):
+    convex_list = []
+    if end-start == 2 :
+        tempID = canvas.create_line(nd.node(node_set[start].x,node_set[start].y),nd.node(node_set[end-1].x,node_set[end-1].y),fill='red')
+        convex_list.append([start,tempID])
+        convex_list.append([end-1,tempID])
+    
+    if end-start >2 :
+
+        temp_node = []
+
+        for i in range(start,end):
+            temp_node.append([node_set[i].x,node_set[i].y])
+
+        hull = ConvexHull(temp_node)
+        
+        hull_list = []
+        for i in hull.vertices:
+            hull_list.append(i+start)
+        hull_list.append(hull.vertices[0]+start)
+
+        for i in range(len(hull_list)-1):
+            tempID = canvas.create_line(nd.node(node_set[hull_list[i]].x,node_set[hull_list[i]].y),nd.node(node_set[hull_list[i+1]].x,node_set[hull_list[i+1]].y),fill='red')
+            convex_list.append([hull_list[i],tempID])
+        
+        tempID = canvas.create_line(nd.node(node_set[hull_list[0]].x,node_set[hull_list[0]].y),nd.node(node_set[hull_list[0+1]].x,node_set[hull_list[0+1]].y),fill='green')
+        convex_list.append([hull_list[0],tempID])
+            
+    return convex_list
 
 
 def vorononi_two_point(start, end):
+
+    global node_set,line_set
+
+    left = node_set[start]
+    right = node_set[end]
+
+    mx,my,vx,vy = vo.midline([left.x,left.y],[right.x,right.y])
+    line_set.append(ln.Line(mx,my,vx,vy))
+    line_set[-1].line_id = canvas.create_line(nd.node(line_set[-1].x+100*line_set[-1].b,line_set[-1].y-100*line_set[-1].a),nd.node(line_set[-1].x-100*line_set[-1].b,line_set[-1].y+100*line_set[-1].a),fill='black')
+    line_set[-1].node_index.append(start)
+    line_set[-1].node_index.append(end)
+    tx, ty = line_set[-1].x,line_set[-1].y
+    line_set[-1].x = tx+100*line_set[-1].b
+    line_set[-1].y = ty-100*line_set[-1].a
+    line_set[-1].ex =tx-100*line_set[-1].b
+    line_set[-1].ey =ty+100*line_set[-1].a
+    node_set[start].line_index.append(len(line_set)-1)
+    node_set[end].line_index.append(len(line_set)-1)
+
 
     return start, end
 
 def vorononi_recursive(start, end):
     global node_set,line_set
 
+    
     if end == start:
         return[start,end]
 
     if end - start == 1:
         vorononi_two_point(start,end)
-    
+        return [start,end]
     else:
         left = vorononi_recursive(start,int((start+end)/2))
         right = vorononi_recursive(int((start+end)/2)+1,end)
-        left_convex = build_convex(left[0],left[1])
-        right_convex = build_convex(right[0],right[1])
-        vorononi_merge(left,right,left_convex,right_convex)
+        left_convex = build_convex(left[0],left[1]+1)
+        right_convex = build_convex(right[0],right[1]+1)
+        mc = vorononi_merge(left,right,left_convex,right_convex)
 
     return [start,end]
+
+def test():
+    node_set.sort()
+    vorononi_recursive(0,len(node_set)-1)
+
+    return
+
+def convex():
+    
+    
+
+    build_convex(0,len(node_set))
+
+    return 
 
 def vor_recursive(start,end):
     global node_set,line_set
@@ -335,9 +477,9 @@ if __name__ == '__main__' :
     canvas.bind('<Button-1>', mouse_place)
     canvas.place(x = 20, y = 50, width = 600, height = 600)
 
-    burtton_read = tk.Button(bottom_frame, text='read file', fg='black', command = reafFile)
+    burtton_read = tk.Button(bottom_frame, text='read file', fg='black', command = readFile)
     burtton_read.pack(side=tk.LEFT)
-    burtton_read = tk.Button(bottom_frame, text='read file(old)', fg='black', command = reafFile_old)
+    burtton_read = tk.Button(bottom_frame, text='read file(old)', fg='black', command = readFile_old)
     burtton_read.pack(side=tk.LEFT)
     burtton_next = tk.Button(bottom_frame, text='next set', fg='black', command=showNode)
     burtton_next.pack(side=tk.LEFT)
@@ -348,6 +490,10 @@ if __name__ == '__main__' :
     button_step = tk.Button(bottom_frame, text='step by step', fg='black', command=deleteline)
     button_step.pack(side=tk.LEFT)
     button_clear = tk.Button(bottom_frame, text='clear', fg='black', command=clearCanvas)
+    button_clear.pack(side=tk.LEFT)
+    button_clear = tk.Button(bottom_frame, text='convex', fg='black', command=convex)
+    button_clear.pack(side=tk.LEFT)
+    button_clear = tk.Button(bottom_frame, text='test', fg='black', command=test)
     button_clear.pack(side=tk.LEFT)
     
     
