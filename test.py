@@ -15,6 +15,8 @@ outputfilename_offset = 0
 colorFlag = 0
 
 # functions
+
+
 def readFile():
     global node_set, now_set
     node_set = []
@@ -46,10 +48,6 @@ def readFile_old():
 
 
 def checkrange(init):
-    # if init > 600:
-    #     init = 600
-    # if init < 0 :
-    #     init = 0
     return int(init)
 
 
@@ -116,260 +114,142 @@ def mouse_place(event):
         nd.circle(add_x, add_y), fill='red')
 
 
+def cleanLine(atLeft, hyperLeft, hyperRight, temp, nowX, nowY):
+
+    if atLeft == True:
+        cleanWay = ln.underLine(line_set[-1], node_set[hyperLeft])
+    else:
+        cleanWay = ln.underLine(line_set[-1], node_set[hyperRight])
+
+    lineSn = nd.Node(line_set[temp[0]].x, line_set[temp[0]].y)
+    # lineEn = nd.Node(line_set[temp[0]].ex,line_set[temp[0]].ey)
+    if cleanWay == ln.underLine(line_set[-1], lineSn):
+        canvas.delete(str(line_set[temp[0]].line_id))
+        line_set[temp[0]].ex = nowX
+        line_set[temp[0]].ey = nowY
+        line_set[temp[0]].line_id = canvas.create_line(nd.node(line_set[temp[0]].x, line_set[temp[0]].y), nd.node(
+            line_set[temp[0]].ex, line_set[temp[0]].ey), fill='black')
+    else:
+        canvas.delete(str(line_set[temp[0]].line_id))
+        line_set[temp[0]].x = line_set[temp[0]].ex
+        line_set[temp[0]].y = line_set[temp[0]].ey
+        line_set[temp[0]].ex = nowX
+        line_set[temp[0]].ey = nowY
+        line_set[temp[0]].line_id = canvas.create_line(nd.node(line_set[temp[0]].x, line_set[temp[0]].y), nd.node(
+            line_set[temp[0]].ex, line_set[temp[0]].ey), fill='black')
+
+
 def vorononi_merge(left, right, left_convex, right_convex):
-    global colorFlag
+    global colorFlag, line_set, node_set
     for i in left_convex:
         canvas.delete(str(i[1]))
     for i in right_convex:
         canvas.delete(str(i[1]))
-    clr = build_convex_1(left[0], right[1]+1)
-
-    state = find_convex(left_convex, clr[0][0])
-
-    cutline = []
-
-    for i in range(len(clr)):
-        # print(find_convex(left_convex,clr[i][0]))
-        if find_convex(left_convex, clr[i][0]) != state:
-            cutline.append(i-1)
-            state = find_convex(left_convex, clr[i][0])
-
-    canvas.delete(str(clr[cutline[0]][1]))
-    canvas.delete(str(clr[cutline[1]][1]))
-
-    clr[cutline[0]][1] = canvas.create_line(nd.node(node_set[clr[cutline[0]][0]].x, node_set[clr[cutline[0]][0]].y), nd.node(
-        node_set[clr[cutline[0]+1][0]].x, node_set[clr[cutline[0]+1][0]].y), fill='blue')
-    clr[cutline[1]][1] = canvas.create_line(nd.node(node_set[clr[cutline[1]][0]].x, node_set[clr[cutline[1]][0]].y), nd.node(
-        node_set[clr[cutline[1]+1][0]].x, node_set[clr[cutline[1]+1][0]].y), fill='blue')
-
-    if right[1] - left[0] == 2 and right[0] == right[1]:
-        temp_line = ln.Line(node_set[left[0]].x, node_set[left[0]].y, node_set[right[0]
-                                                                               ].x-node_set[left[0]].x, node_set[right[0]].y-node_set[left[0]].y)
-        # canvas.create_line(nd.node(temp_line.x+100*temp_line.b,temp_line.y-100*temp_line.a),nd.node(temp_line.x-100*temp_line.b,temp_line.y+100*temp_line.a),fill='black')
-        temp_flag = ln.underLine(temp_line, node_set[left[1]])
-        # print(temp_flag)
-        if temp_flag == 1:
-            left_first = left[1]
-        else:
-            left_first = left[0]
-
-        mx, my, vx, vy = vo.midline([node_set[left_first].x, node_set[left_first].y], [
-                                    node_set[right[0]].x, node_set[right[0]].y])
-        line_set.append(ln.Line(mx, my, vx, vy))
-        # line_set[-1].line_id = canvas.create_line(nd.node(line_set[-1].x+100*line_set[-1].b,line_set[-1].y-100*line_set[-1].a),nd.node(line_set[-1].x-100*line_set[-1].b,line_set[-1].y+100*line_set[-1].a),fill='black')
-        
-        line_set[-1].node_index.append(left_first)
-        line_set[-1].node_index.append(right[0])
-
-        # 取得左側線段的index
-        line_temp_index = node_set[left_first].line_index[-1]
-        # 將原左側線段從畫布上刪除
-        # print(str(line_set[line_temp_index].line_id))
-        canvas.delete(str(line_set[line_temp_index].line_id))
-
-        # 兩線段的交點為cx,cy
-        _, cx, cy = ln.crossLine(line_set[-1], line_set[line_temp_index])
-
-        line_set[line_temp_index].x, line_set[line_temp_index].y = cx, cy
-
-        temp_line = ln.Line(node_set[left[0]].x, node_set[left[0]].y, node_set[left[1]
-                                                                               ].x-node_set[left[0]].x, node_set[left[1]].y-node_set[left[0]].y)
-
-        if ln.underLine(temp_line, node_set[right[0]]) == -1:
-            if line_set[line_temp_index].vy < 0:
-                line_set[line_temp_index].vx = - \
-                    1 * line_set[line_temp_index].vx
-                line_set[line_temp_index].vy = - \
-                    1 * line_set[line_temp_index].vy
-
-        if ln.underLine(temp_line, node_set[right[0]]) == 1:
-            if line_set[line_temp_index].vy > 0:
-                line_set[line_temp_index].vx = - \
-                    1 * line_set[line_temp_index].vx
-                line_set[line_temp_index].vy = - \
-                    1 * line_set[line_temp_index].vy
-
-        line_set[line_temp_index].line_id = canvas.create_line(nd.node(cx, cy), nd.node(
-            cx+1000*line_set[line_temp_index].vx, cy+1000*line_set[line_temp_index].vy), fill='black')
-        line_set[line_temp_index].x = cx
-        line_set[line_temp_index].y = cy
-        line_set[line_temp_index].ex = cx+1000*line_set[line_temp_index].vx
-        line_set[line_temp_index].ey = cy+1000*line_set[line_temp_index].vy
-
-        line_set[-1].line_id = canvas.create_line(nd.node(cx, cy), nd.node(
-            cx+100*line_set[-1].vx, cy+100*line_set[-1].vy), fill='black')
-        line_set[-1].x = cx
-        line_set[-1].y = cy
-        line_set[-1].ex = cx+100*line_set[-1].vx
-        line_set[-1].ey = cy+100*line_set[-1].vy
-
-        if left[0] == left_first:
-            another = left[1]
-        else:
-            another = left[0]
-
-        mx, my, vx, vy = vo.midline([node_set[another].x, node_set[another].y], [
-                                    node_set[right[0]].x, node_set[right[0]].y])
-        vx = -vx
-        vy = -vy
-        line_set.append(ln.Line(mx, my, vx, vy))
-        line_set[-1].line_id = canvas.create_line(nd.node(cx, cy), nd.node(
-            cx+100*line_set[-1].vx, cy+100*line_set[-1].vy), fill='black')
-        line_set[-1].x = cx
-        line_set[-1].y = cy
-        line_set[-1].ex = cx+100*line_set[-1].vx
-        line_set[-1].ey = cx+100*line_set[-1].vy
-
+    
+    try :
+        clr = build_convex_1(left[0], right[1]+1)
+    except:
+        line_set = []
+        vor_recursive(left[0], right[1])
     else:
-        midx = 0.5*(node_set[left[-1]].x + node_set[right[0]].x)
-        templ1 = ln.Line(node_set[clr[cutline[0]][0]].x,node_set[clr[cutline[0]][0]].y,node_set[clr[cutline[0]+1][0]].x - node_set[clr[cutline[0]][0]].x,node_set[clr[cutline[0]+1][0]].y - node_set[clr[cutline[0]][0]].y)
-        templ2 = ln.Line(node_set[clr[cutline[1]][0]].x,node_set[clr[cutline[1]][0]].y,node_set[clr[cutline[1]+1][0]].x - node_set[clr[cutline[1]][0]].x,node_set[clr[cutline[1]+1][0]].y - node_set[clr[cutline[1]][0]].y)
+        deleteConvex(clr)
 
-        templ1y = -1*(templ1.a+templ1.c)/templ1.b
-        templ2y = -1*(templ2.a+templ2.c)/templ2.b
+        state = find_convex(left_convex, clr[0][0])
 
-        if templ1y > templ2y:
-            if find_convex(left_convex,clr[cutline[0]][0])==True:
-                hyperLeft = clr[cutline[0]][0]
-                hyperRight = clr[cutline[0]+1][0]
-            else :
-                hyperLeft = clr[cutline[0]+1][0]
-                hyperRight = clr[cutline[0]][0]
-        else :
-            if find_convex(left_convex,clr[cutline[1]][0])==True:
-                hyperLeft = clr[cutline[1]][0]
-                hyperRight = clr[cutline[1]+1][0]
+        cutline = []
+
+        for i in range(len(clr)):
+            # print(find_convex(left_convex,clr[i][0]))
+            if find_convex(left_convex, clr[i][0]) != state:
+                cutline.append(i-1)
+                state = find_convex(left_convex, clr[i][0])
+
+        canvas.delete(str(clr[cutline[0]][1]))
+        canvas.delete(str(clr[cutline[1]][1]))
+
+        if True:
+            midx = 0.5*(node_set[left[-1]].x + node_set[right[0]].x)
+            templ1 = ln.Line(node_set[clr[cutline[0]][0]].x, node_set[clr[cutline[0]][0]].y, node_set[clr[cutline[0]+1]
+                                                                                                    [0]].x - node_set[clr[cutline[0]][0]].x, node_set[clr[cutline[0]+1][0]].y - node_set[clr[cutline[0]][0]].y)
+            templ2 = ln.Line(node_set[clr[cutline[1]][0]].x, node_set[clr[cutline[1]][0]].y, node_set[clr[cutline[1]+1]
+                                                                                                    [0]].x - node_set[clr[cutline[1]][0]].x, node_set[clr[cutline[1]+1][0]].y - node_set[clr[cutline[1]][0]].y)
+
+            templ1y = -1*(templ1.a+templ1.c)/templ1.b
+            templ2y = -1*(templ2.a+templ2.c)/templ2.b
+
+            if templ1y > templ2y:
+                if find_convex(left_convex, clr[cutline[0]][0]) == True:
+                    hyperLeft = clr[cutline[0]][0]
+                    hyperRight = clr[cutline[0]+1][0]
+                else:
+                    hyperLeft = clr[cutline[0]+1][0]
+                    hyperRight = clr[cutline[0]][0]
             else:
-                hyperLeft = clr[cutline[1]+1][0]
-                hyperRight = clr[cutline[1]][0]
+                if find_convex(left_convex, clr[cutline[1]][0]) == True:
+                    hyperLeft = clr[cutline[1]][0]
+                    hyperRight = clr[cutline[1]+1][0]
+                else:
+                    hyperLeft = clr[cutline[1]+1][0]
+                    hyperRight = clr[cutline[1]][0]
 
-        notDone = True
-        maxY = 100000
-        lineList = []
-
-        nowY = 0
-        nowX = 0
-        for l in node_set[hyperLeft].line_index:
-            lineList.append([l,True])
-        for l in node_set[hyperRight].line_index:
-            lineList.append([l,False])
-
-        # canvas.create_oval(nd.circle(node_set[hyperLeft].x, node_set[hyperLeft].y), fill='green')
-        # canvas.create_oval(nd.circle(node_set[hyperRight].x, node_set[hyperRight].y), fill='yellow')
-        mx, my, vx, vy = vo.midline([node_set[hyperLeft].x, node_set[hyperLeft].y], [node_set[hyperRight].x, node_set[hyperRight].y])
-        line_set.append(ln.Line(mx, my, vx, vy))
-        
-        for l in lineList:
-            _,htx,hty = ln.crossLine(line_set[l[0]],line_set[-1])
-            if hty > nowY and hty <= maxY:
-                nowY = hty
-                nowX = htx
-                atLeft = l[1]
-                temp = l
-            
-        # canvas.create_line(nd.node(line_set[temp[0]].x,line_set[temp[0]].y),nd.node(line_set[temp[0]].ex,line_set[temp[0]].ey),fill='yellow')
-        
-        
-        
-        if atLeft == True:
-            if hyperLeft == line_set[l[0]].node_index[0] :
-                nexthyper = line_set[l[0]].node_index[1]
-            else :
-                nexthyper = line_set[l[0]].node_index[0]
-        else :
-            if hyperRight == line_set[l[0]].node_index[0] :
-                nexthyper = line_set[l[0]].node_index[1]
-            else :
-                nexthyper = line_set[l[0]].node_index[0]
-        
-         
-        
-
-        line_set[-1].ex = nowX
-        line_set[-1].ey = nowY
-
-        if line_set[-1].vy < 0:
-            line_set[-1].vx = -1* line_set[-1].vx
-            line_set[-1].vy = -1* line_set[-1].vy
-
-        line_set[-1].x = line_set[-1].ex + 1000*line_set[-1].vx
-        line_set[-1].y = line_set[-1].ey + 1000*line_set[-1].vy
-
-        line_set[-1].line_id = canvas.create_line(nd.node(line_set[-1].x,line_set[-1].y), nd.node(line_set[-1].ex,line_set[-1].ey), fill='green')
-
-        bX = nowX
-        bY = nowY
-        maxY = nowY
-
-        if atLeft == True:
-            hyperLeft = nexthyper
-        else :
-            hyperRight = nexthyper
-
-
-
-        while notDone == True:
+            notDone = True
+            maxY = 100000
             lineList = []
 
             nowY = 0
             nowX = 0
             for l in node_set[hyperLeft].line_index:
-                lineList.append([l,True])
+                lineList.append([l, True])
             for l in node_set[hyperRight].line_index:
-                lineList.append([l,False])
+                lineList.append([l, False])
 
-            canvas.create_oval(nd.circle(node_set[hyperLeft].x, node_set[hyperLeft].y), fill='green')
-            canvas.create_oval(nd.circle(node_set[hyperRight].x, node_set[hyperRight].y), fill='yellow')
-            mx, my, vx, vy = vo.midline([node_set[hyperLeft].x, node_set[hyperLeft].y], [node_set[hyperRight].x, node_set[hyperRight].y])
+            # canvas.create_oval(nd.circle(node_set[hyperLeft].x, node_set[hyperLeft].y), fill='green')
+            # canvas.create_oval(nd.circle(node_set[hyperRight].x, node_set[hyperRight].y), fill='yellow')
+            mx, my, vx, vy = vo.midline([node_set[hyperLeft].x, node_set[hyperLeft].y], [
+                                        node_set[hyperRight].x, node_set[hyperRight].y])
             line_set.append(ln.Line(mx, my, vx, vy))
-            
-            nowY = -1
+            line_set[-1].node_index = []
+            line_set[-1].node_index.append(hyperLeft)
+            line_set[-1].node_index.append(hyperRight)
+            node_set[hyperLeft].line_index.append(len(line_set)-1)
+            node_set[hyperRight].line_index.append(len(line_set)-1)
 
             for l in lineList:
-                _,htx,hty = ln.crossLine(line_set[l[0]],line_set[-1])
-                if hty > nowY and hty < maxY:
+                _, htx, hty = ln.crossLine(line_set[l[0]], line_set[-1])
+                if hty > nowY and hty <= maxY:
                     nowY = hty
                     nowX = htx
                     atLeft = l[1]
                     temp = l
 
-            if nowY == -1:
-                break
+            # canvas.create_line(nd.node(line_set[temp[0]].x,line_set[temp[0]].y),nd.node(line_set[temp[0]].ex,line_set[temp[0]].ey),fill='purple')
 
-
-            if colorFlag == 0 :
-                canvas.create_line(nd.node(line_set[temp[0]].x,line_set[temp[0]].y),nd.node(line_set[temp[0]].ex,line_set[temp[0]].ey),fill='purple')
-                
-            if colorFlag == 1:
-                canvas.create_line(nd.node(line_set[temp[0]].x,line_set[temp[0]].y),nd.node(line_set[temp[0]].ex,line_set[temp[0]].ey),fill='orange')
-            else :
-                canvas.create_line(nd.node(line_set[temp[0]].x,line_set[temp[0]].y),nd.node(line_set[temp[0]].ex,line_set[temp[0]].ey),fill='purple')
-            colorFlag += 1
-            
-            
             if atLeft == True:
-                if hyperLeft == line_set[l[0]].node_index[0] :
-                    nexthyper = line_set[l[0]].node_index[1]
-                else :
-                    nexthyper = line_set[l[0]].node_index[0]
-            else :
-                if hyperRight == line_set[l[0]].node_index[0] :
-                    nexthyper = line_set[l[0]].node_index[1]
-                else :
-                    nexthyper = line_set[l[0]].node_index[0]
-            
-            canvas.create_oval(nd.circle(node_set[nexthyper].x, node_set[nexthyper].y), fill='blue')
-            
+                if hyperLeft == line_set[temp[0]].node_index[0]:
+                    nexthyper = line_set[temp[0]].node_index[1]
+                else:
+                    nexthyper = line_set[temp[0]].node_index[0]
+            else:
+                if hyperRight == line_set[temp[0]].node_index[0]:
+                    nexthyper = line_set[temp[0]].node_index[1]
+                else:
+                    nexthyper = line_set[temp[0]].node_index[0]
 
             line_set[-1].ex = nowX
             line_set[-1].ey = nowY
 
-            
+            if line_set[-1].vy < 0:
+                line_set[-1].vx = -1 * line_set[-1].vx
+                line_set[-1].vy = -1 * line_set[-1].vy
 
-            line_set[-1].x = bX
-            line_set[-1].y = bY
+            line_set[-1].x = line_set[-1].ex + 1000*line_set[-1].vx
+            line_set[-1].y = line_set[-1].ey + 1000*line_set[-1].vy
 
-            line_set[-1].line_id = canvas.create_line(nd.node(line_set[-1].x,line_set[-1].y), nd.node(line_set[-1].ex,line_set[-1].ey), fill='green')
+            line_set[-1].line_id = canvas.create_line(nd.node(
+                line_set[-1].x, line_set[-1].y), nd.node(line_set[-1].ex, line_set[-1].ey), fill='green')
+
+            # 消線
+            cleanLine(atLeft, hyperLeft, hyperRight, temp, nowX, nowY)
 
             bX = nowX
             bY = nowY
@@ -377,13 +257,123 @@ def vorononi_merge(left, right, left_convex, right_convex):
 
             if atLeft == True:
                 hyperLeft = nexthyper
-            else :
+            else:
                 hyperRight = nexthyper
-            
+
+            while notDone == True:
+                lineList = []
+
+                nowY = 0
+                nowX = 0
+                for l in node_set[hyperLeft].line_index:
+                    lineList.append([l, True])
+                for l in node_set[hyperRight].line_index:
+                    lineList.append([l, False])
+
+                # canvas.create_oval(nd.circle(node_set[hyperLeft].x, node_set[hyperLeft].y), fill='green')
+                # canvas.create_oval(nd.circle(node_set[hyperRight].x, node_set[hyperRight].y), fill='yellow')
+                mx, my, vx, vy = vo.midline([node_set[hyperLeft].x, node_set[hyperLeft].y], [
+                                            node_set[hyperRight].x, node_set[hyperRight].y])
+                line_set.append(ln.Line(mx, my, vx, vy))
+                line_set[-1].node_index = []
+                line_set[-1].node_index.append(hyperLeft)
+                line_set[-1].node_index.append(hyperRight)
+                node_set[hyperLeft].line_index.append(len(line_set)-1)
+                node_set[hyperRight].line_index.append(len(line_set)-1)
+
+                nowY = -1
+
+                for l in lineList:
+                    _, htx, hty = ln.crossLine(line_set[l[0]], line_set[-1])
+                    if hty > nowY and hty < maxY:
+                        nowY = hty
+                        nowX = htx
+                        atLeft = l[1]
+                        temp = l
+
+                if nowY == -1:
+                    break
+
+                if atLeft == True:
+                    if hyperLeft == line_set[temp[0]].node_index[0]:
+                        nexthyper = line_set[temp[0]].node_index[1]
+                    else:
+                        nexthyper = line_set[temp[0]].node_index[0]
+                else:
+                    if hyperRight == line_set[temp[0]].node_index[0]:
+                        nexthyper = line_set[temp[0]].node_index[1]
+                    else:
+                        nexthyper = line_set[temp[0]].node_index[0]
+
+                line_set[-1].ex = nowX
+                line_set[-1].ey = nowY
+
+                line_set[-1].x = bX
+                line_set[-1].y = bY
+
+                line_set[-1].line_id = canvas.create_line(nd.node(
+                    line_set[-1].x, line_set[-1].y), nd.node(line_set[-1].ex, line_set[-1].ey), fill='green')
+
+                bX = nowX
+                bY = nowY
+                maxY = nowY
+
+                # 消線
+                cleanLine(atLeft, hyperLeft, hyperRight, temp, nowX, nowY)
+
+                if atLeft == True:
+                    hyperLeft = nexthyper
+                else:
+                    hyperRight = nexthyper
+
+            # mx, my, vx, vy = vo.midline([node_set[hyperLeft].x, node_set[hyperLeft].y], [node_set[hyperRight].x, node_set[hyperRight].y])
+            if line_set[-1].vy > 0:
+                line_set[-1].vy = line_set[-1].vy * -1
+                line_set[-1].vx = line_set[-1].vx * -1
+            line_set[-1].x = bX
+            line_set[-1].y = bY
+            line_set[-1].ex = line_set[-1].x + 100*line_set[-1].vx
+            line_set[-1].ey = line_set[-1].y + 100*line_set[-1].vy
+            # print(line_set[-1].y)
+            # print(line_set[-1].vy)
+            # print(line_set[-1].y + 100*vy)
+            # print(line_set[-1].ey)
+            line_set[-1].line_id = 0
+            line_set[-1].line_id = canvas.create_line(nd.node(line_set[-1].x, line_set[-1].y), nd.node(
+                line_set[-1].ex, line_set[-1].ey), fill='purple')
+
+            line_set[-1].node_index = []
+            line_set[-1].node_index.append(hyperLeft)
+            line_set[-1].node_index.append(hyperRight)
+            node_set[hyperLeft].line_index.append(len(line_set)-1)
+            node_set[hyperRight].line_index.append(len(line_set)-1)
+            line_set[-1].testflag = 1
+            detectLine()
+
+        detectLine()
+
+        return clr
 
 
-    return clr
+def detectLine():
+    global node_set, line_set
 
+    for l in line_set:
+        numLine = 0
+        n1 = [l.x,l.y]
+        n2 = [l.ex,l.ey]
+        for _l in line_set:
+            if _l != l:
+                _n1 = [_l.x,_l.y]
+                _n2 = [_l.ex,_l.ey]
+                if n1 == _n1 or n1 == _n2 or n2 == _n1 or n2 == _n2:
+                    numLine = 1
+        print(numLine)
+        if numLine == 0:
+            canvas.delete(str(l.line_id))
+
+
+    return
 
 def find_convex(listN, node):
     flag = False
@@ -506,9 +496,18 @@ def vorononi_recursive(start, end):
         right = vorononi_recursive(int((start+end)/2)+1, end)
         left_convex = build_convex(left[0], left[1]+1)
         right_convex = build_convex(right[0], right[1]+1)
+        deleteConvex(left_convex)
+        deleteConvex(right_convex)
         mc = vorononi_merge(left, right, left_convex, right_convex)
 
     return [start, end]
+
+
+def deleteConvex(convex):
+    for c in convex:
+        canvas.delete(str(c[1]))
+
+    return
 
 
 def test():
@@ -566,7 +565,7 @@ def vor_recursive(start, end):
         line_set.append(ln.Line(mx, my, vx, vy))
         line_set[-1].line_id = canvas.create_line(nd.node(line_set[-1].x+100*line_set[-1].b, line_set[-1].y-100*line_set[-1].a), nd.node(
             line_set[-1].x-100*line_set[-1].b, line_set[-1].y+100*line_set[-1].a), fill='black')
-        
+
         line_set[-1].node_index.append(left[1])
         line_set[-1].node_index.append(right)
         tx, ty = line_set[-1].x, line_set[-1].y
@@ -682,17 +681,6 @@ def run():
     global node_set, line_set
 
     vor_main()
-
-    #x,y,vx,vy = vo.midline([100,100],[100,50])
-    #x,y,vx,vy = vo.midline(node_set[0],node_set[1])
-
-    # line_id.append(canvas.create_line(cx+100*cvx,cy+100*cvy,cx-100*cvx,cy-100*cvy,fill='black'))
-    # print(len(line_id))
-    # line_id.append(canvas.create_line(nd.node(x-100*vx,y-100*vy),nd.node(x+100*vx,y+100*vy),fill='black'))
-
-    # line_set.append(ln.Line(x,y,vx,vy))
-    # line_id.append(canvas.create_line(nd.node(line_set[-1].x+100*line_set[-1].b,line_set[-1].y-100*line_set[-1].a),nd.node(line_set[-1].x-100*line_set[-1].b,line_set[-1].y+100*line_set[-1].a),fill='black'))
-    # print(len(line_id))
 
 
 def deleteline():

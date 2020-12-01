@@ -65,6 +65,7 @@ class Line() :
     dir = 0
     line_id = 0
     draw = True
+    testflag = 0
 
     
 
