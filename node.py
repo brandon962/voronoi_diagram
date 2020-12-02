@@ -59,40 +59,46 @@ def CreateNode_old(path):
 def CreateNode_step(path):
     n_set = []
     l_set = []
+    n_color = []
     l_color = []
+    
     with open(path,encoding='utf-8') as f:
         for _,line in enumerate(f):
             if line.find('P') == 0:
-                # print(line)
+                # prfloat(line)
                 line = line.replace('\n','')
-                _,x,y=line.split(' ')
-                n_set.append(Node(int(x),int(y)))
+                _,c,x,y=line.split(' ')
+                n_set.append(Node(float(x),float(y)))
+                n_color.append(c)
                 # n_set.append(Node(1,2))
             if line.find('E') == 0:
                 line = line.replace('\n','')
                 _,c,x,y,x2,y2=line.split(' ')
-                print([x,y,x2,y2])
-                l_set.append(ln.Line(int(x),int(y),int(x2)-int(x),int(y2)-int(y)))
+                l_set.append(ln.Line(float(x),float(y),float(x2)-float(x),float(y2)-float(y)))
                 l_color.append(c)
-    return n_set, l_set, l_color
+    return n_set, l_set, n_color,l_color
 
 def CreateNode(path):
     temp_set = []
     start = 1
+    not_end = True
     with open(path,encoding='utf-8') as f:
         for _,line in enumerate(f) :
-            line = line.replace('\n','')
-            if len(line) != 0 :
-                if line.find('#') :
-                    if line.find(' ') == -1 :
-                        if start == 0:
-                            Ctotal_node_set.append(temp_set)
-                        start = 0
-                        temp_set = []
-                    else :
-                        temp = line.replace('\n','')
-                        a,b = temp.split(' ')
-                        temp_set.append(Node(float(a),float(b)))
+            if not_end:
+                line = line.replace('\n','')
+                if len(line.split()) == 1 and line.find('0') == 0:
+                    not_end = False
+                if len(line) != 0 :
+                    if line.find('#') :
+                        if line.find(' ') == -1 :
+                            if start == 0:
+                                Ctotal_node_set.append(temp_set)
+                            start = 0
+                            temp_set = []
+                        else :
+                            temp = line.replace('\n','')
+                            a,b = temp.split(' ')
+                            temp_set.append(Node(float(a),float(b)))
 
     #print(total_node_set)
 

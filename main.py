@@ -15,6 +15,7 @@ outputfilename_offset = 0
 step_offset = 0
 read_step = 0
 colorFlag = 0
+first_step = True
 
 # functions
 
@@ -86,40 +87,64 @@ def writeFile():
     f.close()
 
 def readStep():
-    global node_set, now_set,read_step
-    clearCanvasStep()
-    node_set = []
-    line_set = []
-    line_color = []
-    now_set = 0
-    filename = 'step/step' + str(read_step) + '.txt'
-    read_step += 1
-    print(filename)
-    f = open(filename, 'r', encoding="utf-8")
-    node_set, line_set, line_color = nd.CreateNode_step(filename)
-    f.close()
+    global first_step,node_set, now_set,read_step
+    if first_step:
+        first_step = False
+        test()
+        clearCanvasStep()
+        readStep()
+
+    else:
+        if read_step > step_offset -1:
+            read_step = 0
+            readStep()
+            return
+
+        clearCanvasStep()
+        node_set = []
+        line_set = []
+        line_color = []
+        now_set = 0
+        filename = 'step/step' + str(read_step) + '.txt'
+        read_step += 1
+        # print(filename)
+        f = open(filename, 'r', encoding="utf-8")
+        node_set, line_set, node_color,line_color = nd.CreateNode_step(filename)
+        f.close()
 
 
-    for i in range(len(node_set)):
-        node_set[i].node_id = canvas.create_oval(
-            nd.circle(node_set[i].x, node_set[i].y), fill='red')
+        for i in range(len(node_set)):
+            if node_color[i] == 'b':
+                color = 'blue'
+            elif node_color[i] == 'r':
+                color = 'red'
+            elif node_color[i] == 'p':
+                color = 'purple'
+            elif node_color[i] == 'g':
+                color = 'green'
+            elif node_color[i] == 'o':
+                color = 'dark green'
+            else :
+                color = 'black'
+            node_set[i].node_id = canvas.create_oval(
+                nd.circle(node_set[i].x, node_set[i].y), fill=color)
 
-    for i in range(len(line_set)):
-        if line_color[i] == 'b':
-            color = 'blue'
-        elif line_color[i] == 'r':
-            color = 'red'
-        elif line_color[i] == 'p':
-            color = 'purple'
-        elif line_color[i] == 'g':
-            color = 'green'
-        elif line_color[i] == 'o':
-            color = 'orange'
-        else :
-            color = 'black'
+        for i in range(len(line_set)):
+            if line_color[i] == 'b':
+                color = 'blue'
+            elif line_color[i] == 'r':
+                color = 'red'
+            elif line_color[i] == 'p':
+                color = 'purple'
+            elif line_color[i] == 'g':
+                color = 'orange'
+            elif line_color[i] == 'o':
+                color = 'dark green'
+            else :
+                color = 'black'
 
-        line_set[i].line_id = canvas.create_line(nd.node(line_set[i].x, line_set[i].y), nd.node(
-            line_set[i].x+line_set[i].vx, line_set[i].y+line_set[i].vy), fill=color)
+            line_set[i].line_id = canvas.create_line(nd.node(line_set[i].x, line_set[i].y), nd.node(
+                line_set[i].x+line_set[i].vx, line_set[i].y+line_set[i].vy), fill=color)
 
 def writeStepTwoConvex(cl,cr,ls,le,rs,re):
     global step_offset,node_set,line_set
@@ -143,7 +168,19 @@ def writeStepTwoConvex(cl,cr,ls,le,rs,re):
     f = open(filename, 'w')
 
     for i in range(len(temp_node_set)):
-        writeString = 'P ' + \
+        writeString = 'P r ' + \
+            str(int(temp_node_set[i].x)) + ' ' + \
+            str(int(temp_node_set[i].y)) + '\n'
+        f.write(writeString)
+
+    for i in range(ls,le+1):
+        writeString = 'P g ' + \
+            str(int(temp_node_set[i].x)) + ' ' + \
+            str(int(temp_node_set[i].y)) + '\n'
+        f.write(writeString)
+
+    for i in range(rs,re+1):
+        writeString = 'P g ' + \
             str(int(temp_node_set[i].x)) + ' ' + \
             str(int(temp_node_set[i].y)) + '\n'
         f.write(writeString)
@@ -163,6 +200,8 @@ def writeStepTwoConvex(cl,cr,ls,le,rs,re):
         writeString = 'E g ' + str(checkrange(r_temp_line_set[i].x)) + ' ' + str(checkrange(r_temp_line_set[i].y)) + ' ' + str(
             checkrange(r_temp_line_set[i].ex)) + ' ' + str(checkrange(r_temp_line_set[i].ey)) + '\n'
         f.write(writeString)
+
+    
 
     f.close()
 
@@ -188,13 +227,25 @@ def writeStepOneConvex(con,ls,le,rs,re):
     f = open(filename, 'w')
 
     for i in range(len(temp_node_set)):
-        writeString = 'P ' + \
+        writeString = 'P r ' + \
+            str(int(temp_node_set[i].x)) + ' ' + \
+            str(int(temp_node_set[i].y)) + '\n'
+        f.write(writeString)
+
+    for i in range(ls,le+1):
+        writeString = 'P g ' + \
+            str(int(temp_node_set[i].x)) + ' ' + \
+            str(int(temp_node_set[i].y)) + '\n'
+        f.write(writeString)
+
+    for i in range(rs,re+1):
+        writeString = 'P g ' + \
             str(int(temp_node_set[i].x)) + ' ' + \
             str(int(temp_node_set[i].y)) + '\n'
         f.write(writeString)
 
     for i in range(len(con)-1):
-        writeString = 'E ' + 'p' +' '+ str(node_set[con[i][0]].x) + ' ' + str(node_set[con[i][0]].y) + ' '+str(node_set[con[i+1][0]].x) + ' ' + str(node_set[con[i+1][0]].y)+ '\n'
+        writeString = 'E ' + 'b' +' '+ str(node_set[con[i][0]].x) + ' ' + str(node_set[con[i][0]].y) + ' '+str(node_set[con[i+1][0]].x) + ' ' + str(node_set[con[i+1][0]].y)+ '\n'
         f.write(writeString)
     
 
@@ -226,32 +277,69 @@ def writeStepHy(ln,hn,s,e):
     f = open(filename, 'w')
 
     for i in range(len(temp_node_set)):
-        writeString = 'P ' + \
+        writeString = 'P r ' + \
+            str(int(temp_node_set[i].x)) + ' ' + \
+            str(int(temp_node_set[i].y)) + '\n'
+        f.write(writeString)
+
+    for i in range(s,e+1):
+        writeString = 'P g ' + \
             str(int(temp_node_set[i].x)) + ' ' + \
             str(int(temp_node_set[i].y)) + '\n'
         f.write(writeString)
 
     
+
+    
     for i in range(len(temp_line_set)):
-        writeString = 'E p ' + str(checkrange(temp_line_set[i].x)) + ' ' + str(checkrange(temp_line_set[i].y)) + ' ' + str(
+        writeString = 'E k ' + str(checkrange(temp_line_set[i].x)) + ' ' + str(checkrange(temp_line_set[i].y)) + ' ' + str(
             checkrange(temp_line_set[i].ex)) + ' ' + str(checkrange(temp_line_set[i].ey)) + '\n'
         f.write(writeString)
 
     for i in range(ln,hn+1):
-        writeString = 'E o ' + str(checkrange(h_temp_line_set[i].x)) + ' ' + str(checkrange(h_temp_line_set[i].y)) + ' ' + str(
+        writeString = 'E p ' + str(checkrange(h_temp_line_set[i].x)) + ' ' + str(checkrange(h_temp_line_set[i].y)) + ' ' + str(
             checkrange(h_temp_line_set[i].ex)) + ' ' + str(checkrange(h_temp_line_set[i].ey)) + '\n'
         f.write(writeString)
 
     f.close()
     return
 
+def writeStep():
+    global step_offset,node_set,line_set
+    temp_node_set = node_set.copy()
+    temp_node_set.sort()
+
+    temp_line_set = line_set.copy()
+
+    
+    filename = 'step/step' + str(step_offset) + '.txt'
+    step_offset += 1
+    f = open(filename, 'w')
+
+    for i in range(len(temp_node_set)):
+        writeString = 'P r ' + \
+            str(int(temp_node_set[i].x)) + ' ' + \
+            str(int(temp_node_set[i].y)) + '\n'
+        f.write(writeString)
+
+    
+    for i in range(len(temp_line_set)):
+        writeString = 'E k ' + str(checkrange(temp_line_set[i].x)) + ' ' + str(checkrange(temp_line_set[i].y)) + ' ' + str(
+            checkrange(temp_line_set[i].ex)) + ' ' + str(checkrange(temp_line_set[i].ey)) + '\n'
+        f.write(writeString)
+
+
+    f.close()
+    return
+
 def clearCanvas():
-    global node_set, line_set, step_offset, read_step
+    global node_set, line_set, step_offset, read_step, first_step
     canvas.delete('all')
     node_set = []
     line_set = []
     step_offset = 0
     read_step = 0
+    first_step = True
 
 
 def clearCanvasStep():
@@ -460,7 +548,7 @@ def vorononi_merge(left, right, left_convex, right_convex):
             line_set[-1].y = line_set[-1].ey + 1000*line_set[-1].vy
 
             line_set[-1].line_id = canvas.create_line(nd.node(
-                line_set[-1].x, line_set[-1].y), nd.node(line_set[-1].ex, line_set[-1].ey), fill='green')
+                line_set[-1].x, line_set[-1].y), nd.node(line_set[-1].ex, line_set[-1].ey), fill='black')
 
             # 消線
             cleanLine(atLeft, hyperLeft, hyperRight, temp, nowX, nowY)
@@ -532,7 +620,7 @@ def vorononi_merge(left, right, left_convex, right_convex):
                 line_set[-1].y = bY
 
                 line_set[-1].line_id = canvas.create_line(nd.node(
-                    line_set[-1].x, line_set[-1].y), nd.node(line_set[-1].ex, line_set[-1].ey), fill='green')
+                    line_set[-1].x, line_set[-1].y), nd.node(line_set[-1].ex, line_set[-1].ey), fill='black')
 
                 bX = nowX
                 bY = nowY
@@ -570,7 +658,7 @@ def vorononi_merge(left, right, left_convex, right_convex):
             # print(line_set[-1].ey)
             line_set[-1].line_id = 0
             line_set[-1].line_id = canvas.create_line(nd.node(line_set[-1].x, line_set[-1].y), nd.node(
-                line_set[-1].ex, line_set[-1].ey), fill='green')
+                line_set[-1].ex, line_set[-1].ey), fill='black')
 
             line_set[-1].node_index = []
             line_set[-1].node_index.append(hyperLeft)
@@ -728,16 +816,16 @@ def vorononi_two_point(start, end):
 
     mx, my, vx, vy = vo.midline([left.x, left.y], [right.x, right.y])
     line_set.append(ln.Line(mx, my, vx, vy))
-    line_set[-1].line_id = canvas.create_line(nd.node(line_set[-1].x+100*line_set[-1].b, line_set[-1].y-100*line_set[-1].a), nd.node(
-        line_set[-1].x-100*line_set[-1].b, line_set[-1].y+100*line_set[-1].a), fill='black')
+    line_set[-1].line_id = canvas.create_line(nd.node(line_set[-1].x+1000*line_set[-1].b, line_set[-1].y-1000*line_set[-1].a), nd.node(
+        line_set[-1].x-1000*line_set[-1].b, line_set[-1].y+1000*line_set[-1].a), fill='black')
 
     line_set[-1].node_index.append(start)
     line_set[-1].node_index.append(end)
     tx, ty = line_set[-1].x, line_set[-1].y
-    line_set[-1].x = tx+100*line_set[-1].b
-    line_set[-1].y = ty-100*line_set[-1].a
-    line_set[-1].ex = tx-100*line_set[-1].b
-    line_set[-1].ey = ty+100*line_set[-1].a
+    line_set[-1].x = tx+1000*line_set[-1].b
+    line_set[-1].y = ty-1000*line_set[-1].a
+    line_set[-1].ex = tx-1000*line_set[-1].b
+    line_set[-1].ey = ty+1000*line_set[-1].a
 
     node_set[start].line_index = []
     node_set[start].line_index.append(len(line_set)-1)
@@ -783,7 +871,7 @@ def deleteConvex(convex):
 def test():
     node_set.sort()
     vorononi_recursive(0, len(node_set)-1)
-
+    writeStep()
     return
 
 
@@ -963,14 +1051,14 @@ if __name__ == '__main__':
     home_window = tk.Tk()
 
     home_window.title('voronoi diagram')
-    home_window.geometry('750x700')
+    home_window.geometry('640x670')
     home_window.configure(background='green')
 
     bottom_frame = tk.Frame(home_window)
     bottom_frame.pack(side=tk.TOP)
 
-    entry_coordinate = tk.Entry(home_window, relief='sunken')
-    entry_coordinate.place(x=650, y=50, width=80, height=600)
+    # entry_coordinate = tk.Entry(home_window, relief='sunken')
+    # entry_coordinate.place(x=650, y=50, width=80, height=600)
 
     canvas = tk.Canvas(home_window, bg='white', height=600,
                        width=600, relief='sunken')
@@ -989,7 +1077,7 @@ if __name__ == '__main__':
     burtton_write = tk.Button(
         bottom_frame, text='write file', fg='black', command=writeFile)
     burtton_write.pack(side=tk.LEFT)
-    button_play = tk.Button(bottom_frame, text='play', fg='black', command=run)
+    button_play = tk.Button(bottom_frame, text='play', fg='black', command=test)
     button_play.pack(side=tk.LEFT)
     button_step = tk.Button(
         bottom_frame, text='step by step', fg='black', command=readStep)
@@ -997,11 +1085,11 @@ if __name__ == '__main__':
     button_clear = tk.Button(bottom_frame, text='clear',
                              fg='black', command=clearCanvas)
     button_clear.pack(side=tk.LEFT)
-    button_clear = tk.Button(bottom_frame, text='convex',
-                             fg='black', command=convex)
-    button_clear.pack(side=tk.LEFT)
-    button_clear = tk.Button(bottom_frame, text='test',
-                             fg='black', command=test)
+    # button_clear = tk.Button(bottom_frame, text='convex',
+    #                          fg='black', command=convex)
+    # button_clear.pack(side=tk.LEFT)
+    # button_clear = tk.Button(bottom_frame, text='test',
+    #                          fg='black', command=test)
     button_clear.pack(side=tk.LEFT)
 
     home_window.mainloop()
