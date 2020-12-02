@@ -56,6 +56,26 @@ def CreateNode_old(path):
                 l_set.append(ln.Line(int(x),int(y),int(x2)-int(x),int(y2)-int(y)))
     return n_set, l_set
 
+def CreateNode_step(path):
+    n_set = []
+    l_set = []
+    l_color = []
+    with open(path,encoding='utf-8') as f:
+        for _,line in enumerate(f):
+            if line.find('P') == 0:
+                # print(line)
+                line = line.replace('\n','')
+                _,x,y=line.split(' ')
+                n_set.append(Node(int(x),int(y)))
+                # n_set.append(Node(1,2))
+            if line.find('E') == 0:
+                line = line.replace('\n','')
+                _,c,x,y,x2,y2=line.split(' ')
+                print([x,y,x2,y2])
+                l_set.append(ln.Line(int(x),int(y),int(x2)-int(x),int(y2)-int(y)))
+                l_color.append(c)
+    return n_set, l_set, l_color
+
 def CreateNode(path):
     temp_set = []
     start = 1
