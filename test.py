@@ -87,12 +87,12 @@ def writeFile():
 
 def readStep():
     global node_set, now_set,read_step
-    clearCanvas()
+    clearCanvasStep()
     node_set = []
     line_set = []
     line_color = []
     now_set = 0
-    filename = 'step' + str(read_step) + '.txt'
+    filename = 'step/step' + str(read_step) + '.txt'
     read_step += 1
     print(filename)
     f = open(filename, 'r', encoding="utf-8")
@@ -113,6 +113,8 @@ def readStep():
             color = 'purple'
         elif line_color[i] == 'g':
             color = 'green'
+        elif line_color[i] == 'o':
+            color = 'orange'
         else :
             color = 'black'
 
@@ -124,13 +126,7 @@ def writeStepTwoConvex(cl,cr,ls,le,rs,re):
     temp_node_set = node_set.copy()
     temp_node_set.sort()
 
-    for i in range(len(line_set)):
-        if line_set[i].ex < line_set[i].x:
-            tx, ty = line_set[i].x, line_set[i].y
-            line_set[i].x = line_set[i].ex
-            line_set[i].y = line_set[i].ey
-            line_set[i].ex = tx
-            line_set[i].ey = ty
+    
 
     l_temp_line_set = []
     r_temp_line_set = []
@@ -142,7 +138,7 @@ def writeStepTwoConvex(cl,cr,ls,le,rs,re):
         for l in node_set[i].line_index:
             r_temp_line_set.append(line_set[l])
 
-    filename = 'step' + str(step_offset) + '.txt'
+    filename = 'step/step' + str(step_offset) + '.txt'
     step_offset += 1
     f = open(filename, 'w')
 
@@ -170,11 +166,98 @@ def writeStepTwoConvex(cl,cr,ls,le,rs,re):
 
     f.close()
 
+def writeStepOneConvex(con,ls,le,rs,re):
+    global step_offset,node_set,line_set
+    temp_node_set = node_set.copy()
+    temp_node_set.sort()
+
+    
+
+    l_temp_line_set = []
+    r_temp_line_set = []
+
+    for i in range(ls,le+1):
+        for l in node_set[i].line_index:
+            l_temp_line_set.append(line_set[l])
+    for i in range(rs,re+1):
+        for l in node_set[i].line_index:
+            r_temp_line_set.append(line_set[l])
+
+    filename = 'step/step' + str(step_offset) + '.txt'
+    step_offset += 1
+    f = open(filename, 'w')
+
+    for i in range(len(temp_node_set)):
+        writeString = 'P ' + \
+            str(int(temp_node_set[i].x)) + ' ' + \
+            str(int(temp_node_set[i].y)) + '\n'
+        f.write(writeString)
+
+    for i in range(len(con)-1):
+        writeString = 'E ' + 'p' +' '+ str(node_set[con[i][0]].x) + ' ' + str(node_set[con[i][0]].y) + ' '+str(node_set[con[i+1][0]].x) + ' ' + str(node_set[con[i+1][0]].y)+ '\n'
+        f.write(writeString)
+    
+
+    for i in range(len(l_temp_line_set)):
+        writeString = 'E r ' + str(checkrange(l_temp_line_set[i].x)) + ' ' + str(checkrange(l_temp_line_set[i].y)) + ' ' + str(
+            checkrange(l_temp_line_set[i].ex)) + ' ' + str(checkrange(l_temp_line_set[i].ey)) + '\n'
+        f.write(writeString)
+    for i in range(len(r_temp_line_set)):
+        writeString = 'E g ' + str(checkrange(r_temp_line_set[i].x)) + ' ' + str(checkrange(r_temp_line_set[i].y)) + ' ' + str(
+            checkrange(r_temp_line_set[i].ex)) + ' ' + str(checkrange(r_temp_line_set[i].ey)) + '\n'
+        f.write(writeString)
+
+    f.close()
+
+def writeStepHy(ln,hn,s,e):
+    global step_offset,node_set,line_set
+    temp_node_set = node_set.copy()
+    temp_node_set.sort()
+
+    temp_line_set = []
+    h_temp_line_set = line_set.copy()
+
+    for i in range(s,e+1):
+        for l in node_set[i].line_index:
+            temp_line_set.append(line_set[l])
+    
+    filename = 'step/step' + str(step_offset) + '.txt'
+    step_offset += 1
+    f = open(filename, 'w')
+
+    for i in range(len(temp_node_set)):
+        writeString = 'P ' + \
+            str(int(temp_node_set[i].x)) + ' ' + \
+            str(int(temp_node_set[i].y)) + '\n'
+        f.write(writeString)
+
+    
+    for i in range(len(temp_line_set)):
+        writeString = 'E p ' + str(checkrange(temp_line_set[i].x)) + ' ' + str(checkrange(temp_line_set[i].y)) + ' ' + str(
+            checkrange(temp_line_set[i].ex)) + ' ' + str(checkrange(temp_line_set[i].ey)) + '\n'
+        f.write(writeString)
+
+    for i in range(ln,hn+1):
+        writeString = 'E o ' + str(checkrange(h_temp_line_set[i].x)) + ' ' + str(checkrange(h_temp_line_set[i].y)) + ' ' + str(
+            checkrange(h_temp_line_set[i].ex)) + ' ' + str(checkrange(h_temp_line_set[i].ey)) + '\n'
+        f.write(writeString)
+
+    f.close()
+    return
+
 def clearCanvas():
     global node_set, line_set, step_offset, read_step
     canvas.delete('all')
     node_set = []
     line_set = []
+    step_offset = 0
+    read_step = 0
+
+
+def clearCanvasStep():
+    global node_set, line_set, step_offset, read_step
+    canvas.delete('all')
+    
     
 
 
@@ -240,6 +323,7 @@ def vorononi_merge(left, right, left_convex, right_convex):
     
     clr = build_convex_1(left[0], right[1]+1)
     
+    writeStepOneConvex(clr,left[0],left[1],right[0],right[1])
         
     if True:
         deleteConvex(clr)
@@ -681,9 +765,11 @@ def vorononi_recursive(start, end):
         writeStepTwoConvex(left_convex,right_convex,left[0],left[1],right[0],right[1])
         deleteConvex(left_convex)
         deleteConvex(right_convex)
-        mc = vorononi_merge(left, right, left_convex, right_convex)
+        line_num = len(line_set)
+        vorononi_merge(left, right, left_convex, right_convex)
+        hyper_num = len(line_set)-1
         # detectLine()
-        writeFile()
+        writeStepHy(line_num,hyper_num,start,end)
     return [start, end]
 
 
