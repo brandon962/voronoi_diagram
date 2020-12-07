@@ -3,10 +3,20 @@
     "cSpell.words": [
         "Ctotal",
         "asksaveasfile",
+        "bootloader",
+        "datas",
+        "hiddenimports",
+        "hookspath",
         "maxx",
         "maxy",
+        "midx",
         "miny",
+        "noarchive",
+        "pathex",
         "rnode",
-        "tempy"
+        "templ",
+        "tempy",
+        "tmpdir",
+        "zipfiles"
     ]
 }
