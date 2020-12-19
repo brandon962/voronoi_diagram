@@ -1,0 +1,178 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta content="width=device-width,initial-scale=1" name="viewport">
+  <meta content="description" name="description">
+  <meta name="google" content="notranslate" />
+  <meta content="Mashup templates have been developped by Orson.io team" name="author">
+
+  <!-- Disable tap highlight on IE -->
+  <meta name="msapplication-tap-highlight" content="no">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="./assets/apple-icon-180x180.png">
+  <link href="./assets/favicon.ico" rel="icon">
+
+  <link href="" rel="stylesheet">
+
+
+  <title>Voronoi diagram</title>
+
+
+  <link href="./main.550dcf66.css" rel="stylesheet">
+</head>
+
+<body>
+  <header>
+    <nav class="navbar navbar-default active"></nav>
+  </header>
+
+  <!-- Add your site or app content here -->
+  <div class="hero-full-container background-image-container white-text-container">
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-12">
+          <h1>Voronoi diagram</h1>
+          <p>WELCOME TO VORONOI DIAGRAM WEBSITE.</p>
+          <p>NSYSU 資工碩一 許哲維 M093040082</p>
+          <br>
+          <br>
+          <br>
+          <!-- <a href="./project.html" class="btn btn-default btn-lg" title="">Discover</a> -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-container">
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-12 col-md-8 col-md-offset-2">
+          <div class="text-center">
+            <h2>關於 </h2>
+          </div>
+          <div class="">
+            <p>
+              沃羅諾伊圖(Voronoi Diagram)為一個演算法可以幫助我們空間分割，可應用於幾何、建築地理學
+              等。其特色為圖上任意點落於哪個區域(黑色線段所圍區域)中則與該點距離最近的紅點必也在
+              該區域中。
+            </p>
+            <img class="img-responsive" src="./assets/images/voronoi diagram.png">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-container">
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-12 col-md-8 col-md-offset-2">
+          <div class="text-center">
+            <h2>軟體規格書</h2>
+            <h3>輸出與輸入(資料)規格</h3>
+          </div>
+          <div class="text">
+            <p>輸入資料要求為須輸入測試點數，再逐一輸入點的x座標與y座標，輸入點數為0時表示測試結束。
+              輸出會依照不同的圖片輸出不同的檔案，在每行前面加上P或E表示為point(點)或edge(邊)。
+            </p>
+          </div>
+          <div class="text-center">
+            <img class="img" title="輸入" src="./assets/images/inputdata.png">
+            <img class="img" title="輸出" src="./assets/images/outputdata.png">
+          </div>
+          <div class="text-center">
+            <h3>功能規格與介面規格</h3>
+          </div>
+
+          <p>主介面如下圖<br>
+            read file      : 讀取原始檔案<br>
+            read file(old) : 讀取輸出檔案<br>
+            next set       : 顯示下個點集合<br>
+            write file     : 將目前的點與線輸出<br>
+            play           : 將voronoi diagram一次性完成<br>
+            step by step   : 依步驟完成voronoi diagram<br>
+            clear          : 將全畫面清空<br>
+          </p>
+          <div class="text-center">
+            <img class="img" title="程式畫面" src="./assets/images/程式畫面.png">
+          </div>
+          <div class="text-center">
+            <h3>軟體測試規劃書</h3>
+          </div>
+
+          <p>
+            本程式為使用python設計，並用python套件tkinter做為視窗介面工具。
+            其中voronoi diagram的以遞迴方式解，而遞迴最小單位為2點。
+            對於任何大於2點的點集合會將點結合分隔成兩半直至點數為2為止。
+            再將較小點集合的voronoi diagram做合併直至原點和為止。
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <div class="section-container">
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-12 col-md-8 col-md-offset-2">
+          <div class="text-center">
+            <h2>軟體說明</h2>
+          </div>
+          <div class="text-center">
+            <h3>軟體測試規劃書</h3>
+          </div>
+
+          <p>
+            本程式為使用python設計，並用python套件tkinter做為視窗介面工具。
+            其中voronoi diagram的以遞迴方式解，而遞迴最小單位為2點。
+            對於任何大於2點的點集合會將點結合分隔成兩半直至點數為2為止。
+            再將較小點集合的voronoi diagram做合併直至原點和為止。
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="section-container">
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-12 col-md-8 col-md-offset-2">
+          <div class="text-center">
+            <h2>About Us</h2>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas luctus at sem quis varius.
+              <br>
+              Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Phasellus
+              iaculis magna sagittis elit sagittis, at hendrerit lorem venenatis. Morbi accumsan iaculis blandit. Cras
+              ultrices hendrerit nisl.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+
+
+
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function (event) {
+      navbarFixedTopAnimation();
+    });
+  </script>
+
+  <footer class="footer-container white-text-container"></footer>
+  <script type="text/javascript" src="./main.0cf8b554.js"></script>
+</body>
+
+</html> -->
