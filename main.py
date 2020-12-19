@@ -1,9 +1,9 @@
 # 許哲維 Che-wei, Hsu
 # M093040082
 import tkinter as tk
-import Node as nd
+import node as nd
 import voronoi as vo
-import Line as ln
+import line as ln
 import time
 from tkinter import filedialog
 from tkinter.filedialog import asksaveasfile
