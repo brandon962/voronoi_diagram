@@ -5,7 +5,7 @@ Ctotal_node_set = []
 def distance(a,b):
     len = math.sqrt((a.x-b.x)**2+(a.y-b.y)**2)
     return len
-
+# test
 def node(x,y):
     return x,600-y
 
