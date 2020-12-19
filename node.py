@@ -1,5 +1,5 @@
 import math
-import Line as ln
+import line as ln
 total_node_set = []
 Ctotal_node_set = []
 def distance(a,b):
