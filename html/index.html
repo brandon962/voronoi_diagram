@@ -10,19 +10,19 @@
   <meta content="Mashup templates have been developped by Orson.io team" name="author">
 
   <!-- Disable tap highlight on IE -->
-  <meta name="msapplication-tap-highlight" content="no">
+<meta name="msapplication-tap-highlight" content="no">
 
 
-  <link rel="apple-touch-icon" sizes="180x180" href="./assets/apple-icon-180x180.png">
-  <link href="./assets/favicon.ico" rel="icon">
+<link rel="apple-touch-icon" sizes="180x180" href="./assets/apple-icon-180x180.png">
+<link href="./assets/favicon.ico" rel="icon">
 
-  <link href="" rel="stylesheet">
-
-
-  <title>Voronoi diagram</title>
+<link href="" rel="stylesheet">
 
 
-  <link href="./main.550dcf66.css" rel="stylesheet">
+<title>Voronoi diagram</title>
+
+
+<link href="./main.550dcf66.css" rel="stylesheet">
 </head>
 
 <body>
@@ -89,13 +89,13 @@
           </div>
 
           <p>主介面如下圖<br>
-            read file      : 讀取原始檔案<br>
+            read file : 讀取原始檔案<br>
             read file(old) : 讀取輸出檔案<br>
-            next set       : 顯示下個點集合<br>
-            write file     : 將目前的點與線輸出<br>
-            play           : 將voronoi diagram一次性完成<br>
-            step by step   : 依步驟完成voronoi diagram<br>
-            clear          : 將全畫面清空<br>
+            next set : 顯示下個點集合<br>
+            write file : 將目前的點與線輸出<br>
+            play : 將voronoi diagram一次性完成<br>
+            step by step : 依步驟完成voronoi diagram<br>
+            clear : 將全畫面清空<br>
           </p>
           <div class="text-center">
             <img class="img" title="程式畫面" src="./assets/images/程式畫面.png">
@@ -124,14 +124,65 @@
             <h2>軟體說明</h2>
           </div>
           <div class="text-center">
-            <h3>軟體測試規劃書</h3>
+            <h3>安裝</h3>
+          </div>
+          <p>
+            前往下方連結下載，執行.exe或main.py皆可<br>
+            程式下載 : <a href="https://github.com/brandon962/voronoi_diagram">我的github</a>
+          </p>
+
+          <div class="text-center">
+            <h3>程式使用說明</h3>
           </div>
 
           <p>
-            本程式為使用python設計，並用python套件tkinter做為視窗介面工具。
-            其中voronoi diagram的以遞迴方式解，而遞迴最小單位為2點。
-            對於任何大於2點的點集合會將點結合分隔成兩半直至點數為2為止。
-            再將較小點集合的voronoi diagram做合併直至原點和為止。
+            1. 輸入點集合，輸入方式有兩種：任意點擊或依檔案輸入<br>
+            1.a 任意輸入
+          <div class="text-center">
+            <img class="img" title="任意輸入" src="./assets/images/1a1.png">
+          </div>
+          <div class="text-center">
+            <img class="img" title="任意輸入" src="./assets/images/1a2.png">
+          </div>
+          1.b 按檔案輸入
+          <div class="text-center">
+            <img class="img" title="按檔案輸入" src="./assets/images/1b1.png">
+          </div>
+          <div class="text-center">
+            <img class="img" title="按檔案輸入" src="./assets/images/1b2.png">
+          </div>
+          <br>
+          2. 計算voronoi diagram
+          2.a 一次完成
+          <div class="text-center">
+            <img class="img" title="一次完成" src="./assets/images/2a1.png">
+          </div>
+          2.b 逐步完成
+          <div class="text-center">
+            <img class="img" title="逐步完成" src="./assets/images/2b1.png">
+          </div>
+          <div class="text-center">
+            <img class="img" title="逐步完成" src="./assets/images/2b2.png">
+          </div>
+          <div class="text-center">
+            <img class="img" title="逐步完成" src="./assets/images/2b3.png">
+          </div>
+          <div class="text-center">
+            <img class="img" title="逐步完成" src="./assets/images/2b4.png">
+          </div>
+          <div class="text-center">
+            <img class="img" title="逐步完成" src="./assets/images/2b5.png">
+          </div>
+          <div class="text-center">
+            <img class="img" title="逐步完成" src="./assets/images/2b6.png">
+          </div>
+          <div class="text-center">
+            <img class="img" title="逐步完成" src="./assets/images/2b7.png">
+          </div>
+          3. 清空畫布
+          <div class="text-center">
+            <img class="img" title="清空畫布" src="./assets/images/3.png">
+          </div>
           </p>
         </div>
       </div>
@@ -144,19 +195,218 @@
       <div class="row">
         <div class="col-xs-12 col-md-8 col-md-offset-2">
           <div class="text-center">
-            <h2>About Us</h2>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas luctus at sem quis varius.
-              <br>
-              Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Phasellus
-              iaculis magna sagittis elit sagittis, at hendrerit lorem venenatis. Morbi accumsan iaculis blandit. Cras
-              ultrices hendrerit nisl.
+            <h2>程式設計</h2>
+          </div>
+          <div class="text-center">
+            <h3>資料結構</h3>
+          </div>
+          <p>
+            node存放點的資訊：<br>
+            。x : 點的x座標<br>
+            。y : 點的y座標<br>
+            。line_index : 將該點圍住的線集合<br>
+            。node_id : tkinter上點的編號<br><br>
+            line存放線段的資訊 : <br>
+            。x : 線段的起點x座標<br>
+            。y : 線段的起點y座標<br>
+            。ex : 線段的終點x座標<br>
+            。ey : 線段的終點y座標<br>
+            。vx : 線段的x向量<br>
+            。vy : 線段的y向量<br>
+            。a, b ,c : 線段方程式的係數(ax+by+c=0)<br>
+            。node_index : 被線段分開的兩點<br>
+            。line_id : tkinter上線段的編號<br>
+          </p>
+          <div class="text-center">
+            <h3>程式設計</h3>
+          </div>
+          <p>
+            將要解的問題分成兩類，點數小於等於2與點數大於2。<br>
+            若點數小於等於2直接畫一條中垂線即可(1個點無中垂線)。<br>
+            若點數大於2則需先將點集合拆半分開做兩次voronoi diagram再做合併，
+            若拆半後點數仍大於2就繼續拆半直至點數小於等於2。<br>
+          </p>
+          <div class="text-center">
+            <h3>2點</h3>
+          </div>
+          <div class="text-center">
+            <img class="img" src="./assets/images/2p.png">
+          </div>
+          <div class="text-center">
+            <h3>4點</h3>
+          </div>
+          <p>
+            1. 將4點拆成2組2點並各自完成voronoi diagram。
+          </p>
+          <div class="text-center">
+            <img class="img" src="./assets/images/4p1.png">
+          </div>
+          <p>
+            2. 將2組2點以convex hull合併並找出上下切線，以方便下階段產生hyper-plan。
+          </p>
+          <div class="text-center">
+            <img class="img" src="./assets/images/4p2.png">
+          </div>
+          <p>
+            2. 將2組2點以hyper-plan分隔，即完成4點voronoi diagram。
+          </p>
+          <div class="text-center">
+            <img class="img" src="./assets/images/4p3.png">
+          </div>
+          <div class="text-center">
+            <h3>消線</h3>
+            <p>
+              如圖當點集合兩邊皆為鈍角三角形時最多共有6條線段需要被消除，然而在一般情況下至多只需消除4條線段
+              ，因此在每次合併時需要做額外的檢查動作，避免線段沒有消除乾淨殘留在畫布上影響下次合併。
             </p>
+            <div class="text-center">
+              <img class="img" src="./assets/images/cl.png">
+            </div>
+            <div class="text-center">
+              <img class="img" src="./assets/images/cl2.png">
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
 
+  <div class="section-container">
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-12 col-md-8 col-md-offset-2">
+          <div class="text-center">
+            <h2>軟體測試與實驗結果</h2>
+          </div>
+          <div class="text-center">
+            <h3>環境</h3>
+          </div>
+          <p>
+            123
+          </p>
+          <div class="text-center">
+            <img class="img" src="./assets/images/os.png">
+          </div>
+          <div class="text-center">
+            <h3>資料結構</h3>
+          </div>
+          <p>
+            123
+          </p>
+          <div class="text-center">
+            <h3>資料結構</h3>
+          </div>
+          <p>
+            123
+          </p>
+          <div class="text-center">
+            <h3>資料結構</h3>
+          </div>
+          <p>
+            123
+          </p>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-container">
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-12 col-md-8 col-md-offset-2">
+          <div class="text-center">
+            <h2>程式設計</h2>
+          </div>
+          <div class="text-center">
+            <h3>資料結構</h3>
+          </div>
+          <p>
+            123
+          </p>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-container">
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-12 col-md-8 col-md-offset-2">
+          <div class="text-center">
+            <h2>程式設計</h2>
+          </div>
+          <div class="text-center">
+            <h3>資料結構</h3>
+          </div>
+          <p>
+            123
+          </p>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="section-container">
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-12 col-md-8 col-md-offset-2">
+          <div class="text-center">
+            <h2>程式設計</h2>
+          </div>
+          <div class="text-center">
+            <h3>資料結構</h3>
+          </div>
+          <p>
+            123
+          </p>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="section-container">
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-12 col-md-8 col-md-offset-2">
+          <div class="text-center">
+            <h2>程式設計</h2>
+          </div>
+          <div class="text-center">
+            <h3>資料結構</h3>
+          </div>
+          <p>
+            123
+          </p>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-container">
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-12 col-md-8 col-md-offset-2">
+          <div class="text-center">
+            <h2>程式設計</h2>
+          </div>
+          <div class="text-center">
+            <h3>資料結構</h3>
+          </div>
+          <p>
+            123
+          </p>
+
+        </div>
+      </div>
+    </div>
+  </div>
 
 
 

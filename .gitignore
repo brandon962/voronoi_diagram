@@ -1,4 +1,3 @@
-*.exe
 *.zip
 /vscode
 /__pycache__
